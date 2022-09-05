@@ -15,6 +15,7 @@
 ### Java API Changes
 * Add CompactionPriority.RoundRobin.
 * Revert to using the default metadata charge policy when creating an LRU cache via the Java API.
+* Add SizeApproximationOptions for RocksDB#getApproximateSizes().
 
 ### Behavior Change
 * Right now, when the option migration tool (OptionChangeMigration()) migrates to FIFO compaction, it compacts all the data into one single SST file and move to L0. This might create a problem for some users: the giant file may be soon deleted to satisfy max_table_files_size, and might cayse the DB to be almost empty. We change the behavior so that the files are cut to be smaller, but these files might not follow the data insertion order. With the change, after the migration, migrated data might not be dropped by insertion order by FIFO compaction.
