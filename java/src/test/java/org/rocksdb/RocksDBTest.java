@@ -1181,30 +1181,212 @@ public class RocksDBTest {
     }
   }
 
+  // RocksDB#getApproximateSizes() using SizeApproximationFlag.
   @Test
-  public void getApproximateSizes() throws RocksDBException {
+  public void getApproximateSizesFlag() throws RocksDBException {
+    final String dbPath = dbFolder.getRoot().getAbsolutePath();
     final byte key1[] = "key1".getBytes(UTF_8);
     final byte key2[] = "key2".getBytes(UTF_8);
     final byte key3[] = "key3".getBytes(UTF_8);
-    try (final Options options = new Options().setCreateIfMissing(true)) {
-      final String dbPath = dbFolder.getRoot().getAbsolutePath();
-      try (final RocksDB db = RocksDB.open(options, dbPath)) {
-        db.put(key1, key1);
-        db.put(key2, key2);
-        db.put(key3, key3);
+    try (final Options options = new Options().setCreateIfMissing(true);
+         final RocksDB db = RocksDB.open(options, dbPath);
+         final Slice slice1 = new Slice(key1);
+         final Slice slice2 = new Slice(key2);
+         final Slice slice3 = new Slice(key3)) {
+      db.put(key1, key1);
 
-        final long[] sizes = db.getApproximateSizes(
-            Arrays.asList(
-                new Range(new Slice(key1), new Slice(key1)),
-                new Range(new Slice(key2), new Slice(key3))
-            ),
-            SizeApproximationFlag.INCLUDE_FILES,
-            SizeApproximationFlag.INCLUDE_MEMTABLES);
+      // Size in memory (i.e. key1.)
+      long[] memorySizes = db.getApproximateSizes(
+          Arrays.asList(new Range(slice1, slice3)),
+          SizeApproximationFlag.INCLUDE_MEMTABLES);
+      assertThat(memorySizes.length).isEqualTo(1);
+      assertThat(memorySizes[0]).isGreaterThanOrEqualTo(1);
 
-        assertThat(sizes.length).isEqualTo(2);
-        assertThat(sizes[0]).isEqualTo(0);
-        assertThat(sizes[1]).isGreaterThanOrEqualTo(1);
-      }
+      // Size on disk (i.e. nothing.)
+      long[] diskSizes = db.getApproximateSizes(
+          Arrays.asList(new Range(slice1, slice3)),
+          SizeApproximationFlag.INCLUDE_FILES);
+      assertThat(diskSizes.length).isEqualTo(1);
+      assertThat(diskSizes[0]).isEqualTo(0);
+
+      // Size in both memory and on disk should match in-memory size.
+      long[] combinedSizes = db.getApproximateSizes(
+          Arrays.asList(new Range(slice1, slice3)),
+          SizeApproximationFlag.INCLUDE_MEMTABLES,
+          SizeApproximationFlag.INCLUDE_FILES);
+      assertThat(combinedSizes.length).isEqualTo(1);
+      assertThat(combinedSizes[0]).isEqualTo(memorySizes[0]);
+
+      db.flush();
+
+      // Size in memory (i.e. nothing.)
+      memorySizes = db.getApproximateSizes(
+          Arrays.asList(new Range(slice1, slice3)),
+          SizeApproximationFlag.INCLUDE_MEMTABLES);
+      assertThat(memorySizes.length).isEqualTo(1);
+      assertThat(memorySizes[0]).isEqualTo(0);
+
+      // Size on disk (i.e. key1.)
+      diskSizes = db.getApproximateSizes(
+          Arrays.asList(new Range(slice1, slice3)),
+          SizeApproximationFlag.INCLUDE_FILES);
+      assertThat(diskSizes.length).isEqualTo(1);
+      assertThat(diskSizes[0]).isGreaterThanOrEqualTo(1);
+
+      // Size in both memory and on disk should match on-disk size.
+      long[] combinedSizes = db.getApproximateSizes(
+          Arrays.asList(new Range(slice1, slice3)),
+          SizeApproximationFlag.INCLUDE_MEMTABLES,
+          SizeApproximationFlag.INCLUDE_FILES);
+      assertThat(combinedSizes.length).isEqualTo(1);
+      assertThat(combinedSizes[0]).isEqualTo(diskSizes[0]);
+
+      db.put(key2, key2);
+      db.put(key3, key3);
+
+      // Re-check the size in memory.
+      memorySizes = db.getApproximateSizes(
+          Arrays.asList(new Range(slice1, slice3)),
+          SizeApproximationFlag.INCLUDE_MEMTABLES);
+      assertThat(memorySizes.length).isEqualTo(1);
+      assertThat(memorySizes[0]).isGreaterThanOrEqualTo(1);
+
+      // Re-check the combined size. It should include both data in memory
+      // and data on disk.
+      long[] combinedSizes = db.getApproximateSizes(
+          Arrays.asList(new Range(slice1, slice3)),
+          SizeApproximationFlag.INCLUDE_MEMTABLES,
+          SizeApproximationFlag.INCLUDE_FILES);
+      assertThat(combinedSizes.length).isEqualTo(1);
+      assertThat(combinedSizes[0]).isEqualTo(diskSizes[0] + memorySizes[0]);
+
+      // Check size in multiple ranges.
+      final long[] multipleSizes = db.getApproximateSizes(
+          Arrays.asList(new Range(slice1, slice1), new Range(slice2, slice3)),
+          SizeApproximationFlag.INCLUDE_FILES,
+          SizeApproximationFlag.INCLUDE_MEMTABLES);
+      assertThat(multipleSizes.length).isEqualTo(2);
+      assertThat(multipleSizes[0]).isEqualTo(0);
+      assertThat(multipleSizes[1]).isGreaterThanOrEqualTo(1);
+    }
+  }
+
+  // RocksDB#getApproximateSizes() using SizeApproximationOptions.
+  @Test
+  public void getApproximateSizesOptions() throws RocksDBException {
+    final String dbPath = dbFolder.getRoot().getAbsolutePath();
+    final byte key1[] = "key1".getBytes(UTF_8);
+    final byte key2[] = "key2".getBytes(UTF_8);
+    final byte key3[] = "key3".getBytes(UTF_8);
+    try (final Options options = new Options().setCreateIfMissing(true);
+         final RocksDB db = RocksDB.open(options, dbPath);
+         final SizeApproximationOptions approxOptions =
+             new SizeApproximationOptions();
+         final Slice slice1 = new Slice(key1);
+         final Slice slice2 = new Slice(key2);
+         final Slice slice3 = new Slice(key3)) {
+      db.put(key1, key1);
+
+      // Size in memory (i.e. key1.)
+      approxOptions.setIncludeMemtables(true);
+      approxOptions.setIncludeFiles(false);
+      long[] memorySizes = db.getApproximateSizes(
+          Arrays.asList(new Range(slice1, slice3)), approxOptions);
+      assertThat(memorySizes.length).isEqualTo(1);
+      assertThat(memorySizes[0]).isGreaterThanOrEqualTo(1);
+
+      // Size on disk (i.e. nothing.)
+      approxOptions.setIncludeMemtables(false);
+      approxOptions.setIncludeFiles(true);
+      long[] diskSizes = db.getApproximateSizes(
+          Arrays.asList(new Range(slice1, slice3)), approxOptions);
+      assertThat(diskSizes.length).isEqualTo(1);
+      assertThat(diskSizes[0]).isEqualTo(0);
+
+      // Size in both memory and on disk should match in-memory size.
+      approxOptions.setIncludeMemtables(true);
+      approxOptions.setIncludeFiles(true);
+      long[] combinedSizes = db.getApproximateSizes(
+          Arrays.asList(new Range(slice1, slice3)), approxOptions);
+      assertThat(combinedSizes.length).isEqualTo(1);
+      assertThat(combinedSizes[0]).isEqualTo(memorySizes[0]);
+
+      db.flush();
+
+      // Size in memory (i.e. nothing.)
+      approxOptions.setIncludeMemtables(true);
+      approxOptions.setIncludeFiles(false);
+      memorySizes = db.getApproximateSizes(
+          Arrays.asList(new Range(slice1, slice3)), approxOptions);
+      assertThat(memorySizes.length).isEqualTo(1);
+      assertThat(memorySizes[0]).isEqualTo(0);
+
+      // Size on disk (i.e. key1.)
+      approxOptions.setIncludeMemtables(false);
+      approxOptions.setIncludeFiles(true);
+      diskSizes = db.getApproximateSizes(
+          Arrays.asList(new Range(slice1, slice3)), approxOptions);
+      assertThat(diskSizes.length).isEqualTo(1);
+      assertThat(diskSizes[0]).isGreaterThanOrEqualTo(1);
+
+      // Size in both memory and on disk should match on-disk size.
+      approxOptions.setIncludeMemtables(true);
+      approxOptions.setIncludeFiles(true);
+      long[] combinedSizes = db.getApproximateSizes(
+          Arrays.asList(new Range(slice1, slice3)), approxOptions);
+      assertThat(combinedSizes.length).isEqualTo(1);
+      assertThat(combinedSizes[0]).isEqualTo(diskSizes[0]);
+
+      db.put(key2, key2);
+      db.put(key3, key3);
+
+      // Re-check the size in memory.
+      approxOptions.setIncludeMemtables(true);
+      approxOptions.setIncludeFiles(false);
+      memorySizes = db.getApproximateSizes(
+          Arrays.asList(new Range(slice1, slice3)), approxOptions);
+      assertThat(memorySizes.length).isEqualTo(1);
+      assertThat(memorySizes[0]).isGreaterThanOrEqualTo(1);
+
+      // Re-check the combined size. It should include both data in memory
+      // and data on disk.
+      approxOptions.setIncludeMemtables(true);
+      approxOptions.setIncludeFiles(true);
+      long[] combinedSizes = db.getApproximateSizes(
+          Arrays.asList(new Range(slice1, slice3)), approxOptions);
+      assertThat(combinedSizes.length).isEqualTo(1);
+      assertThat(combinedSizes[0]).isEqualTo(diskSizes[0] + memorySizes[0]);
+
+      // Check size in multiple ranges.
+      approxOptions.setIncludeMemtables(true);
+      approxOptions.setIncludeFiles(true);
+      final long[] multipleSizes = db.getApproximateSizes(
+          Arrays.asList(new Range(slice1, slice1), new Range(slice2, slice3)),
+          approxOptions);
+      assertThat(multipleSizes.length).isEqualTo(2);
+      assertThat(multipleSizes[0]).isEqualTo(0);
+      assertThat(multipleSizes[1]).isGreaterThanOrEqualTo(1);
+
+      // Verify that the error margin determines which SST files to include.
+      db.flush();
+
+      approxOptions.setIncludeMemtables(false);
+      approxOptions.setIncludeFiles(true);
+      approxOptions.setFilesSizeErrorMargin(-1.0); // Compute accurately.
+      long[] preciseSizes = db.getApproximateSizes(
+          Arrays.asList(new Range(slice1, slice3)), approxOptions);
+      assertThat(combinedSizes.length).isEqualTo(1);
+      assertThat(combinedSizes[0]).isGreaterThanOrEqualTo(1);
+
+      approxOptions.setFilesSizeErrorMargin(Double.POSITIVE_INFINITY);
+      long[] approxSizes = db.getApproximateSizes(
+          Arrays.asList(new Range(slice1, slice3)), approxOptions);
+      assertThat(combinedSizes.length).isEqualTo(1);
+      assertThat(combinedSizes[0]).isGreaterThanOrEqualTo(1);
+
+      // The second SST should be omitted since the range straddles it, and
+      // we have set the acceptable error margin to infinity.
+      assertThat(combinedSizes[0]).isLessThan(preciseSizes[0]);
     }
   }
 
