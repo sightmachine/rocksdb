@@ -278,17 +278,113 @@ set(JAVA_MAIN_CLASSES
 )
 
 set(JAVA_TEST_CLASSES
+  src/test/java/org/rocksdb/AbstractTransactionTest.java
+  src/test/java/org/rocksdb/BackupEngineOptionsTest.java
   src/test/java/org/rocksdb/BackupEngineTest.java
+  src/test/java/org/rocksdb/BlobOptionsTest.java
+  src/test/java/org/rocksdb/BlockBasedTableConfigTest.java
+  src/test/java/org/rocksdb/BuiltinComparatorTest.java
+  src/test/java/org/rocksdb/BytewiseComparatorRegressionTest.java
+  src/test/java/org/rocksdb/CheckPointTest.java
+  src/test/java/org/rocksdb/ClockCacheTest.java
+  src/test/java/org/rocksdb/ColumnFamilyOptionsTest.java
+  src/test/java/org/rocksdb/ColumnFamilyTest.java
+  src/test/java/org/rocksdb/CompactRangeOptionsTest.java
+  src/test/java/org/rocksdb/CompactionFilterFactoryTest.java
+  src/test/java/org/rocksdb/CompactionJobInfoTest.java
+  src/test/java/org/rocksdb/CompactionJobStatsTest.java
+  src/test/java/org/rocksdb/CompactionOptionsFIFOTest.java
+  src/test/java/org/rocksdb/CompactionOptionsTest.java
+  src/test/java/org/rocksdb/CompactionOptionsUniversalTest.java
+  src/test/java/org/rocksdb/CompactionPriorityTest.java
+  src/test/java/org/rocksdb/CompactionStopStyleTest.java
+  src/test/java/org/rocksdb/ComparatorOptionsTest.java
+  src/test/java/org/rocksdb/CompressionOptionsTest.java
+  src/test/java/org/rocksdb/CompressionTypesTest.java
+  src/test/java/org/rocksdb/ConcurrentTaskLimiterTest.java
+  src/test/java/org/rocksdb/DBOptionsTest.java
+  src/test/java/org/rocksdb/DefaultEnvTest.java
+  src/test/java/org/rocksdb/DirectSliceTest.java
+  src/test/java/org/rocksdb/EnvOptionsTest.java
+  src/test/java/org/rocksdb/EventListenerTest.java
+  src/test/java/org/rocksdb/FilterTest.java
+  src/test/java/org/rocksdb/FlushOptionsTest.java
+  src/test/java/org/rocksdb/FlushTest.java
+  src/test/java/org/rocksdb/InfoLogLevelTest.java
   src/test/java/org/rocksdb/IngestExternalFileOptionsTest.java
+  src/test/java/org/rocksdb/KeyMayExistTest.java
+  src/test/java/org/rocksdb/LRUCacheTest.java
+  src/test/java/org/rocksdb/LoggerTest.java
+  src/test/java/org/rocksdb/MemTableTest.java
+  src/test/java/org/rocksdb/MemoryUtilTest.java
+  src/test/java/org/rocksdb/MergeTest.java
+  src/test/java/org/rocksdb/MixedOptionsTest.java
+  src/test/java/org/rocksdb/MultiGetManyKeysTest.java
+  src/test/java/org/rocksdb/MultiGetTest.java
+  src/test/java/org/rocksdb/MutableColumnFamilyOptionsTest.java
+  src/test/java/org/rocksdb/MutableDBOptionsTest.java
+  src/test/java/org/rocksdb/MutableOptionsGetSetTest.java
   src/test/java/org/rocksdb/NativeComparatorWrapperTest.java
+  src/test/java/org/rocksdb/NativeLibraryLoaderTest.java
+  src/test/java/org/rocksdb/OptimisticTransactionDBTest.java
+  src/test/java/org/rocksdb/OptimisticTransactionOptionsTest.java
+  src/test/java/org/rocksdb/OptimisticTransactionTest.java
+  src/test/java/org/rocksdb/OptionsTest.java
+  src/test/java/org/rocksdb/OptionsUtilTest.java
+  src/test/java/org/rocksdb/PlainTableConfigTest.java
   src/test/java/org/rocksdb/PlatformRandomHelper.java
+  src/test/java/org/rocksdb/RateLimiterTest.java
+  src/test/java/org/rocksdb/ReadOnlyTest.java
+  src/test/java/org/rocksdb/ReadOptionsTest.java
   src/test/java/org/rocksdb/RocksDBExceptionTest.java
+  src/test/java/org/rocksdb/RocksDBTest.java
+  src/test/java/org/rocksdb/RocksIteratorTest.java
+  src/test/java/org/rocksdb/RocksMemEnvTest.java
   src/test/java/org/rocksdb/RocksNativeLibraryResource.java
+  src/test/java/org/rocksdb/SecondaryDBTest.java
+  src/test/java/org/rocksdb/SizeApproximationOptionsTest.java
+  src/test/java/org/rocksdb/SliceTest.java
   src/test/java/org/rocksdb/SnapshotTest.java
+  src/test/java/org/rocksdb/SstFileManagerTest.java
+  src/test/java/org/rocksdb/SstFileReaderTest.java
+  src/test/java/org/rocksdb/SstFileWriterTest.java
+  src/test/java/org/rocksdb/SstPartitionerTest.java
+  src/test/java/org/rocksdb/StatisticsCollectorTest.java
+  src/test/java/org/rocksdb/StatisticsTest.java
+  src/test/java/org/rocksdb/StatsCallbackMock.java
+  src/test/java/org/rocksdb/TableFilterTest.java
+  src/test/java/org/rocksdb/TimedEnvTest.java
+  src/test/java/org/rocksdb/TransactionDBOptionsTest.java
+  src/test/java/org/rocksdb/TransactionDBTest.java
+  src/test/java/org/rocksdb/TransactionLogIteratorTest.java
+  src/test/java/org/rocksdb/TransactionOptionsTest.java
+  src/test/java/org/rocksdb/TransactionTest.java
+  src/test/java/org/rocksdb/TtlDBTest.java
+  src/test/java/org/rocksdb/Types.java
+  src/test/java/org/rocksdb/VerifyChecksumsTest.java
+  src/test/java/org/rocksdb/WALRecoveryModeTest.java
+  src/test/java/org/rocksdb/WalFilterTest.java
+  src/test/java/org/rocksdb/WriteBatchHandlerTest.java
   src/test/java/org/rocksdb/WriteBatchTest.java
-  src/test/java/org/rocksdb/util/CapturingWriteBatchHandler.java
-  src/test/java/org/rocksdb/util/WriteBatchGetter.java
+  src/test/java/org/rocksdb/WriteBatchThreadedTest.java
+  src/test/java/org/rocksdb/WriteBatchWithIndexTest.java
+  src/test/java/org/rocksdb/WriteOptionsTest.java
+  src/test/java/org/rocksdb/test/RemoveEmptyValueCompactionFilterFactory.java
+  src/test/java/org/rocksdb/test/RocksJunitRunner.java
   src/test/java/org/rocksdb/test/TestableEventListener.java
+  src/test/java/org/rocksdb/util/ByteBufferAllocator.java
+  src/test/java/org/rocksdb/util/BytewiseComparatorIntTest.java
+  src/test/java/org/rocksdb/util/BytewiseComparatorTest.java
+  src/test/java/org/rocksdb/util/CapturingWriteBatchHandler.java
+  src/test/java/org/rocksdb/util/DirectByteBufferAllocator.java
+  src/test/java/org/rocksdb/util/EnvironmentTest.java
+  src/test/java/org/rocksdb/util/HeapByteBufferAllocator.java
+  src/test/java/org/rocksdb/util/IntComparatorTest.java
+  src/test/java/org/rocksdb/util/JNIComparatorTest.java
+  src/test/java/org/rocksdb/util/ReverseBytewiseComparatorIntTest.java
+  src/test/java/org/rocksdb/util/SizeUnitTest.java
+  src/test/java/org/rocksdb/util/TestUtil.java
+  src/test/java/org/rocksdb/util/WriteBatchGetter.java
 )
 
 include(FindJava)
@@ -305,15 +401,26 @@ set(JAVA_HAMCR_JAR ${JAVA_TEST_LIBDIR}/hamcrest-core-1.3.jar)
 set(JAVA_MOCKITO_JAR ${JAVA_TEST_LIBDIR}/mockito-all-1.10.19.jar)
 set(JAVA_CGLIB_JAR ${JAVA_TEST_LIBDIR}/cglib-2.2.2.jar)
 set(JAVA_ASSERTJ_JAR ${JAVA_TEST_LIBDIR}/assertj-core-1.7.1.jar)
-set(JAVA_TESTCLASSPATH ${JAVA_JUNIT_JAR} ${JAVA_HAMCR_JAR} ${JAVA_MOCKITO_JAR} ${JAVA_CGLIB_JAR} ${JAVA_ASSERTJ_JAR})
+set(JAVA_TEST_JARS ${JAVA_JUNIT_JAR} ${JAVA_HAMCR_JAR} ${JAVA_MOCKITO_JAR} ${JAVA_CGLIB_JAR} ${JAVA_ASSERTJ_JAR})
 
 set(JNI_OUTPUT_DIR ${PROJECT_SOURCE_DIR}/java/include)
 file(MAKE_DIRECTORY ${JNI_OUTPUT_DIR})
+
+if(WITH_TESTS)
+  # If we're building with tests, we bundle the test classes and test JNI code
+  # together with the main code.
+  set(JAVA_JAR_CLASSES ${JAVA_MAIN_CLASSES} ${JAVA_TEST_CLASSES})
+  set(JAVA_JAR_DEPENDENCIES ${JAVA_TEST_JARS})
+else()
+  set(JAVA_JAR_CLASSES ${JAVA_MAIN_CLASSES})
+  set(JAVA_JAR_DEPENDENCIES "")
+endif()
 
 if(${Java_VERSION_MINOR} VERSION_LESS_EQUAL "7" AND ${Java_VERSION_MAJOR} STREQUAL "1")
   message(FATAL_ERROR "Detected Java 7 or older (${Java_VERSION_STRING}), minimum required version in now Java 8")
 endif()
 
+set(CMAKE_JNI_TARGET true)
 if(${Java_VERSION_MAJOR} VERSION_GREATER_EQUAL "10" AND ${CMAKE_VERSION} VERSION_LESS "3.11.4")
   # Java 10 and newer don't have javah, but the alternative GENERATE_NATIVE_HEADERS requires CMake 3.11.4 or newer
   message(FATAL_ERROR "Detected Java 10 or newer (${Java_VERSION_STRING}), to build with CMake please upgrade CMake to 3.11.4 or newer")
@@ -323,10 +430,8 @@ elseif(${CMAKE_VERSION} VERSION_LESS "3.11.4")
   message("Using an old CMAKE (${CMAKE_VERSION}) - JNI headers generated in separate step")
   add_jar(
       rocksdbjni_classes
-      SOURCES
-      ${JAVA_MAIN_CLASSES}
-      ${JAVA_TEST_CLASSES}
-      INCLUDE_JARS ${JAVA_TESTCLASSPATH}
+      SOURCES ${JAVA_JAR_CLASSES}
+      INCLUDE_JARS ${JAVA_JAR_DEPENDENCIES}
   )
 
 else ()
@@ -334,10 +439,8 @@ else ()
   message("Preparing Jar for JDK ${Java_VERSION_STRING}")
   add_jar(
       rocksdbjni_classes
-      SOURCES
-      ${JAVA_MAIN_CLASSES}
-      ${JAVA_TEST_CLASSES}
-      INCLUDE_JARS ${JAVA_TESTCLASSPATH}
+      SOURCES ${JAVA_JAR_CLASSES}
+      INCLUDE_JARS ${JAVA_JAR_DEPENDENCIES}
       GENERATE_NATIVE_HEADERS rocksdbjni_headers DESTINATION ${JNI_OUTPUT_DIR}
   )
 
@@ -359,55 +462,57 @@ else ()
   set(DEPS_URL "https://rocksdb-deps.s3-us-west-2.amazonaws.com/jars")
 endif()
 
-if(NOT EXISTS ${JAVA_JUNIT_JAR})
-  message("Downloading ${JAVA_JUNIT_JAR}")
-  file(DOWNLOAD ${DEPS_URL}/junit-4.12.jar ${JAVA_TMP_JAR} STATUS downloadStatus)
-  list(GET downloadStatus 0 error_code)
-  list(GET downloadStatus 1 error_message)
-  if(NOT error_code EQUAL 0)
-    message(FATAL_ERROR "Failed downloading ${JAVA_JUNIT_JAR}: ${error_message}")
+if(WITH_TESTS)
+  if(NOT EXISTS ${JAVA_JUNIT_JAR})
+    message("Downloading ${JAVA_JUNIT_JAR}")
+    file(DOWNLOAD ${DEPS_URL}/junit-4.12.jar ${JAVA_TMP_JAR} STATUS downloadStatus)
+    list(GET downloadStatus 0 error_code)
+    list(GET downloadStatus 1 error_message)
+    if(NOT error_code EQUAL 0)
+      message(FATAL_ERROR "Failed downloading ${JAVA_JUNIT_JAR}: ${error_message}")
+    endif()
+    file(RENAME ${JAVA_TMP_JAR} ${JAVA_JUNIT_JAR})
   endif()
-  file(RENAME ${JAVA_TMP_JAR} ${JAVA_JUNIT_JAR})
-endif()
-if(NOT EXISTS ${JAVA_HAMCR_JAR})
-  message("Downloading ${JAVA_HAMCR_JAR}")
-  file(DOWNLOAD ${DEPS_URL}/hamcrest-core-1.3.jar ${JAVA_TMP_JAR} STATUS downloadStatus)
-  list(GET downloadStatus 0 error_code)
-  list(GET downloadStatus 1 error_message)
-  if(NOT error_code EQUAL 0)
-    message(FATAL_ERROR "Failed downloading ${JAVA_HAMCR_JAR}: ${error_message}")
+  if(NOT EXISTS ${JAVA_HAMCR_JAR})
+    message("Downloading ${JAVA_HAMCR_JAR}")
+    file(DOWNLOAD ${DEPS_URL}/hamcrest-core-1.3.jar ${JAVA_TMP_JAR} STATUS downloadStatus)
+    list(GET downloadStatus 0 error_code)
+    list(GET downloadStatus 1 error_message)
+    if(NOT error_code EQUAL 0)
+      message(FATAL_ERROR "Failed downloading ${JAVA_HAMCR_JAR}: ${error_message}")
+    endif()
+    file(RENAME ${JAVA_TMP_JAR} ${JAVA_HAMCR_JAR})
   endif()
-  file(RENAME ${JAVA_TMP_JAR} ${JAVA_HAMCR_JAR})
-endif()
-if(NOT EXISTS ${JAVA_MOCKITO_JAR})
-  message("Downloading ${JAVA_MOCKITO_JAR}")
-  file(DOWNLOAD ${DEPS_URL}/mockito-all-1.10.19.jar ${JAVA_TMP_JAR} STATUS downloadStatus)
-  list(GET downloadStatus 0 error_code)
-  list(GET downloadStatus 1 error_message)
-  if(NOT error_code EQUAL 0)
-    message(FATAL_ERROR "Failed downloading ${JAVA_MOCKITO_JAR}: ${error_message}")
+  if(NOT EXISTS ${JAVA_MOCKITO_JAR})
+    message("Downloading ${JAVA_MOCKITO_JAR}")
+    file(DOWNLOAD ${DEPS_URL}/mockito-all-1.10.19.jar ${JAVA_TMP_JAR} STATUS downloadStatus)
+    list(GET downloadStatus 0 error_code)
+    list(GET downloadStatus 1 error_message)
+    if(NOT error_code EQUAL 0)
+      message(FATAL_ERROR "Failed downloading ${JAVA_MOCKITO_JAR}: ${error_message}")
+    endif()
+    file(RENAME ${JAVA_TMP_JAR} ${JAVA_MOCKITO_JAR})
   endif()
-  file(RENAME ${JAVA_TMP_JAR} ${JAVA_MOCKITO_JAR})
-endif()
-if(NOT EXISTS ${JAVA_CGLIB_JAR})
-  message("Downloading ${JAVA_CGLIB_JAR}")
-  file(DOWNLOAD ${DEPS_URL}/cglib-2.2.2.jar ${JAVA_TMP_JAR} STATUS downloadStatus)
-  list(GET downloadStatus 0 error_code)
-  list(GET downloadStatus 1 error_message)
-  if(NOT error_code EQUAL 0)
-    message(FATAL_ERROR "Failed downloading ${JAVA_CGLIB_JAR}: ${error_message}")
+  if(NOT EXISTS ${JAVA_CGLIB_JAR})
+    message("Downloading ${JAVA_CGLIB_JAR}")
+    file(DOWNLOAD ${DEPS_URL}/cglib-2.2.2.jar ${JAVA_TMP_JAR} STATUS downloadStatus)
+    list(GET downloadStatus 0 error_code)
+    list(GET downloadStatus 1 error_message)
+    if(NOT error_code EQUAL 0)
+      message(FATAL_ERROR "Failed downloading ${JAVA_CGLIB_JAR}: ${error_message}")
+    endif()
+    file(RENAME ${JAVA_TMP_JAR} ${JAVA_CGLIB_JAR})
   endif()
-  file(RENAME ${JAVA_TMP_JAR} ${JAVA_CGLIB_JAR})
-endif()
-if(NOT EXISTS ${JAVA_ASSERTJ_JAR})
-  message("Downloading ${JAVA_ASSERTJ_JAR}")
-  file(DOWNLOAD ${DEPS_URL}/assertj-core-1.7.1.jar ${JAVA_TMP_JAR} STATUS downloadStatus)
-  list(GET downloadStatus 0 error_code)
-  list(GET downloadStatus 1 error_message)
-  if(NOT error_code EQUAL 0)
-    message(FATAL_ERROR "Failed downloading ${JAVA_ASSERTJ_JAR}: ${error_message}")
+  if(NOT EXISTS ${JAVA_ASSERTJ_JAR})
+    message("Downloading ${JAVA_ASSERTJ_JAR}")
+    file(DOWNLOAD ${DEPS_URL}/assertj-core-1.7.1.jar ${JAVA_TMP_JAR} STATUS downloadStatus)
+    list(GET downloadStatus 0 error_code)
+    list(GET downloadStatus 1 error_message)
+    if(NOT error_code EQUAL 0)
+      message(FATAL_ERROR "Failed downloading ${JAVA_ASSERTJ_JAR}: ${error_message}")
+    endif()
+    file(RENAME ${JAVA_TMP_JAR} ${JAVA_ASSERTJ_JAR})
   endif()
-  file(RENAME ${JAVA_TMP_JAR} ${JAVA_ASSERTJ_JAR})
 endif()
 
 if(${CMAKE_VERSION} VERSION_LESS "3.11.4")
@@ -520,7 +625,7 @@ if(${CMAKE_VERSION} VERSION_LESS "3.11.4")
   create_javah(
     TARGET rocksdbjni_headers
     CLASSES ${NATIVE_JAVA_CLASSES}
-    CLASSPATH rocksdbjni_classes ${JAVA_TESTCLASSPATH}
+    CLASSPATH rocksdbjni_classes ${JAVA_JAR_DEPENDENCIES}
     OUTPUT_DIR ${JNI_OUTPUT_DIR}
   )
 endif()
@@ -546,4 +651,21 @@ if(NOT MINGW)
     COMPILE_PDB_OUTPUT_DIRECTORY ${CMAKE_CFG_INTDIR}
     COMPILE_PDB_NAME ${ROCKSDBJNI_STATIC_LIB}.pdb
   )
+endif()
+
+if(WITH_TESTS)
+  include(CTest)
+  set(JAVA_ARGS -ea -Xcheck:jni)
+  get_property(ROCKSDBJNI_JAR_PATH TARGET rocksdbjni_classes PROPERTY JAR_FILE)
+  set(JUNIT_COMMAND
+      ${Java_JAVA_EXECUTABLE}
+      ${JAVA_ARGS}
+      -cp
+      "${ROCKSDBJNI_JAR_PATH}:${JAVA_TEST_LIBDIR}/*"
+      org.rocksdb.test.RocksJunitRunner)
+  add_test(NAME rocksdbjni_test COMMAND ${JUNIT_COMMAND})
+  # TODO: Need to add a dependency for the check target
+  # TODO: Remove this message
+  # TODO: Walk the JAR to discover tests.
+  message("JUnit command: ${JUNIT_COMMAND}")
 endif()
