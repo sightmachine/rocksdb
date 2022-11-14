@@ -165,7 +165,7 @@ else()
   if(WITH_LZ4)
     find_package(lz4 REQUIRED)
     add_definitions(-DLZ4)
-    include_directories(${lz4_INCLUDE_DIRS})
+    target_include_directories(lz4::lz4 INTERFACE ${lz4_INCLUDE_DIRS})
     list(APPEND THIRDPARTY_LIBS lz4::lz4)
   endif()
 
@@ -1118,10 +1118,18 @@ add_library(${ROCKSDB_STATIC_LIB} STATIC ${SOURCES} ${BUILD_VERSION_CC})
 target_link_libraries(${ROCKSDB_STATIC_LIB} PRIVATE
   ${THIRDPARTY_LIBS} ${SYSTEM_LIBS})
 
+add_library(rocksdb_static_bundle INTERFACE)
+target_link_libraries(rocksdb_static_bundle INTERFACE
+  ${SYSTEM_LIBS} ${THIRDPARTY_LIBS} ${ROCKSDB_STATIC_LIB})
+
 if(ROCKSDB_BUILD_SHARED)
   add_library(${ROCKSDB_SHARED_LIB} SHARED ${SOURCES} ${BUILD_VERSION_CC})
   target_link_libraries(${ROCKSDB_SHARED_LIB} PRIVATE
     ${THIRDPARTY_LIBS} ${SYSTEM_LIBS})
+
+  add_library(rocksdb_shared_bundle INTERFACE)
+  target_link_libraries(rocksdb_shared_bundle INTERFACE
+    ${SYSTEM_LIBS} ${THIRDPARTY_LIBS} ${ROCKSDB_SHARED_LIB})
 
   if(WIN32)
     set_target_properties(${ROCKSDB_SHARED_LIB} PROPERTIES
@@ -1143,8 +1151,10 @@ endif()
 
 if(ROCKSDB_BUILD_SHARED AND NOT WIN32)
   set(ROCKSDB_LIB ${ROCKSDB_SHARED_LIB})
+  set(ROCKSDB_BUNDLE rocksdb_shared_bundle)
 else()
   set(ROCKSDB_LIB ${ROCKSDB_STATIC_LIB})
+  set(ROCKSDB_BUNDLE rocksdb_static_bundle)
 endif()
 
 option(WITH_JNI "build with JNI" OFF)
@@ -1498,7 +1508,7 @@ if(WITH_TESTS)
         EXCLUDE_FROM_DEFAULT_BUILD_RELWITHDEBINFO 1
         OUTPUT_NAME ${exename}${ARTIFACT_SUFFIX}
       )
-      target_link_libraries(${exename}${ARTIFACT_SUFFIX} testutillib${ARTIFACT_SUFFIX} testharness gtest ${THIRDPARTY_LIBS} ${ROCKSDB_LIB})
+      target_link_libraries(${exename}${ARTIFACT_SUFFIX} testutillib${ARTIFACT_SUFFIX} testharness gtest ${ROCKSDB_BUNDLE})
       if(NOT "${exename}" MATCHES "db_sanity_test")
         gtest_discover_tests(${exename} DISCOVERY_TIMEOUT 120)
         add_dependencies(check ${exename}${ARTIFACT_SUFFIX})
@@ -1530,8 +1540,7 @@ if(WITH_BENCHMARK_TOOLS)
     tools/simulated_hybrid_file_system.cc
     tools/db_bench.cc
     tools/db_bench_tool.cc)
-  target_link_libraries(db_bench${ARTIFACT_SUFFIX}
-    ${ROCKSDB_LIB} ${THIRDPARTY_LIBS})
+  target_link_libraries(db_bench${ARTIFACT_SUFFIX} ${ROCKSDB_BUNDLE})
 
   add_executable(cache_bench${ARTIFACT_SUFFIX}
     cache/cache_bench.cc

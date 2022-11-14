@@ -642,11 +642,6 @@ if(NOT MSVC)
   set_property(TARGET ${ROCKSDB_STATIC_LIB} PROPERTY POSITION_INDEPENDENT_CODE ON)
 endif()
 
-set(ROCKSDBJNI_STATIC_LIB rocksdbjni${ARTIFACT_SUFFIX})
-add_library(${ROCKSDBJNI_STATIC_LIB} ${JNI_NATIVE_SOURCES})
-add_dependencies(${ROCKSDBJNI_STATIC_LIB} rocksdbjni_headers rocksdbjni_test_classes)
-target_link_libraries(${ROCKSDBJNI_STATIC_LIB} ${ROCKSDB_STATIC_LIB} ${ROCKSDB_LIB})
-
 if(NOT MINGW)
   set(ROCKSDBJNI_SHARED_LIB rocksdbjni-shared${ARTIFACT_SUFFIX})
   add_library(${ROCKSDBJNI_SHARED_LIB} SHARED ${JNI_NATIVE_SOURCES})
@@ -656,8 +651,7 @@ if(NOT MINGW)
   ## Here we make a .so from .a rocksdb,and it's dependencies.
   ## the ./build_tools/install_dependencies.sh compiles dependecies with -fPIC
   ## and rocksdb staticlib is compiled with fPIC above ( POSITION_INDEPENDENT_CODE ON)
-  target_link_libraries(${ROCKSDBJNI_SHARED_LIB} ${ROCKSDB_STATIC_LIB}
-     ${THIRDPARTY_LIBS} ${SYSTEM_LIBS})
+  target_link_libraries(${ROCKSDBJNI_SHARED_LIB} rocksdb_static_bundle)
 
   set_target_properties(
     ${ROCKSDBJNI_SHARED_LIB}
@@ -666,19 +660,6 @@ if(NOT MINGW)
     COMPILE_PDB_NAME ${ROCKSDBJNI_STATIC_LIB}.pdb
   )
 endif()
-
-
-## lz4.h is indirectly included by some file in rocksjni/
-## but include_directories set in top level doesn't get
-## propogated here.
-if(WITH_LZ4)
-#  find_package(lz4 REQUIRED)
-#  add_definitions(-DLZ4)
-  include_directories(${lz4_INCLUDE_DIRS})
-#  list(APPEND THIRDPARTY_LIBS lz4::lz4)
-endif()
-
-
 
 #list( TRANSFORM JAVA_TEST_CLASSES REPLACE  "src/test/java/([^ ]*).java" "\\1" OUTPUT_VARIABLE testfilebase )
 #list( TRANSFORM testfilebase REPLACE "/" "." OUTPUT_VARIABLE testclass )
