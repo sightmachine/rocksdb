@@ -32,17 +32,25 @@ jobs:
             unzip -q cmake-3.16.4-win64-x64.zip
             mv cmake-3.16.4-win64-x64 cmake )
       - run:
-          name: CMake configure and build
+          name: Install ninja
           command: |
-            set -xe
-            PATH=$(cd ../deps/cmake/bin;pwd):$PATH
-            ./build_tools/install_dependencies.sh ../deps jni lz4
-            export --  $(cat ../deps/cmake-flags | sed 's/-D//g')
-            TOOLS="-DWITH_TOOLS=OFF -DWITH_TRACE_TOOLS=OFF -WITH_CORE_TOOLS=OFF -DWITH_BENCHMARK_TOOLS=OFF"
-            EXTRA="-DROCKSDB_BUILD_SHARED=ON -DFAIL_ON_WARNINGS=OFF"
-            cmake  -B build $TOOLS -DCMAKE_BUILD_TYPE=Release  $(cat ../deps/cmake-flags) -DPORTABLE=1
+            set -ex
+            (cd ../deps
+            curl --fail --silent --show-error --output ninja.zip --location https://github.com/ninja-build/ninja/releases/download/v1.11.1/ninja-win.zip
+            unzip -q ninja.zip )
+      - run:
+          name: CMake configure and build
+          shell: powershell.exe
+          command: |
+            Import-Module "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\Tools\Microsoft.VisualStudio.DevShell.dll"
+            Enter-VsDevShell -VsInstallPath "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\"
+            $env:PATH="${env:PWD}/../deps/cmake/bin;${env:PWD}/../deps;$env:PATH"
+            bash.exe ./build_tools/install_dependencies.sh ../deps jni lz4
+            $TOOLS="-DWITH_TOOLS=OFF -DWITH_TRACE_TOOLS=OFF -WITH_CORE_TOOLS=OFF -DWITH_BENCHMARK_TOOLS=OFF"
+            $EXTRA="-DROCKSDB_BUILD_SHARED=ON -DFAIL_ON_WARNINGS=OFF"
+            cmake -B build -G Ninja $TOOLS -DCMAKE_BUILD_TYPE=Release $(Get-Content ../deps/cmake-flags) -DPORTABLE=1
             grep ^WITH build/CMakeCache.txt
-            cmake --build  build -v -t rocksdbjni  --config Release -j 12
+            cmake --build build -v -t rocksdbjni --config Release -j 12
       - run:
           name: Copy dll
           command: |
