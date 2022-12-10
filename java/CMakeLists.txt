@@ -395,15 +395,13 @@ find_package(JNI)
 
 include_directories(${JNI_INCLUDE_DIRS})
 include_directories(${PROJECT_SOURCE_DIR}/java)
-
 set(JAVA_TEST_LIBDIR ${PROJECT_SOURCE_DIR}/java/test-libs)
 set(JAVA_TMP_JAR ${JAVA_TEST_LIBDIR}/tmp.jar)
-set(JAVA_JUNIT_JAR ${JAVA_TEST_LIBDIR}/junit-4.12.jar)
-set(JAVA_HAMCR_JAR ${JAVA_TEST_LIBDIR}/hamcrest-core-1.3.jar)
+set(JAVA_JUNIT_STANDALONE_JAR ${JAVA_TEST_LIBDIR}/junit-platform-console-standalone-1.9.1.jar)
 set(JAVA_MOCKITO_JAR ${JAVA_TEST_LIBDIR}/mockito-all-1.10.19.jar)
 set(JAVA_CGLIB_JAR ${JAVA_TEST_LIBDIR}/cglib-2.2.2.jar)
 set(JAVA_ASSERTJ_JAR ${JAVA_TEST_LIBDIR}/assertj-core-1.7.1.jar)
-set(JAVA_TESTCLASSPATH ${JAVA_JUNIT_JAR} ${JAVA_HAMCR_JAR} ${JAVA_MOCKITO_JAR} ${JAVA_CGLIB_JAR} ${JAVA_ASSERTJ_JAR})
+set(JAVA_TESTCLASSPATH ${JAVA_JUNIT_STANDALONE_JAR} ${JAVA_MOCKITO_JAR} ${JAVA_CGLIB_JAR} ${JAVA_ASSERTJ_JAR})
 
 set(JNI_OUTPUT_DIR ${PROJECT_SOURCE_DIR}/java/include)
 file(MAKE_DIRECTORY ${JNI_OUTPUT_DIR})
@@ -462,25 +460,17 @@ else ()
   set(DEPS_URL "https://rocksdb-deps.s3-us-west-2.amazonaws.com/jars")
 endif()
 
-if(NOT EXISTS ${JAVA_JUNIT_JAR})
-  message("Downloading ${JAVA_JUNIT_JAR}")
-  file(DOWNLOAD ${DEPS_URL}/junit-4.12.jar ${JAVA_TMP_JAR} STATUS downloadStatus)
+
+if(NOT EXISTS ${JAVA_JUNIT_STANDALONE_JAR})
+  message("Downloading ${JAVA_JUNIT_STANDALONE_JAR}")
+  # TODO: Get this uploaded to the S3 bucket so we can upstream our changes.
+  file(DOWNLOAD https://repo1.maven.org/maven2/org/junit/platform/junit-platform-console-standalone/1.9.1/junit-platform-console-standalone-1.9.1.jar ${JAVA_TMP_JAR} STATUS downloadStatus)
   list(GET downloadStatus 0 error_code)
   list(GET downloadStatus 1 error_message)
   if(NOT error_code EQUAL 0)
-    message(FATAL_ERROR "Failed downloading ${JAVA_JUNIT_JAR}: ${error_message}")
+    message(FATAL_ERROR "Failed downloading ${JAVA_JUNIT_STANDALONE_JAR}: ${error_message}")
   endif()
-  file(RENAME ${JAVA_TMP_JAR} ${JAVA_JUNIT_JAR})
-endif()
-if(NOT EXISTS ${JAVA_HAMCR_JAR})
-  message("Downloading ${JAVA_HAMCR_JAR}")
-  file(DOWNLOAD ${DEPS_URL}/hamcrest-core-1.3.jar ${JAVA_TMP_JAR} STATUS downloadStatus)
-  list(GET downloadStatus 0 error_code)
-  list(GET downloadStatus 1 error_message)
-  if(NOT error_code EQUAL 0)
-    message(FATAL_ERROR "Failed downloading ${JAVA_HAMCR_JAR}: ${error_message}")
-  endif()
-  file(RENAME ${JAVA_TMP_JAR} ${JAVA_HAMCR_JAR})
+  file(RENAME ${JAVA_TMP_JAR} ${JAVA_JUNIT_STANDALONE_JAR})
 endif()
 if(NOT EXISTS ${JAVA_MOCKITO_JAR})
   message("Downloading ${JAVA_MOCKITO_JAR}")
@@ -647,11 +637,19 @@ set_target_properties(
   COMPILE_PDB_NAME ${ROCKSDBJNI_STATIC_LIB}.pdb
 )
 
-
-#list( TRANSFORM JAVA_TEST_CLASSES REPLACE  "src/test/java/([^ ]*).java" "\\1" OUTPUT_VARIABLE testfilebase )
-#list( TRANSFORM testfilebase REPLACE "/" "." OUTPUT_VARIABLE testclass )
-#get_property(jniclass TARGET rocksdbjni_classes PROPERTY JAR_FILE)
-#string(REPLACE ";" ":" classpath "${JAVA_TESTCLASSPATH}" )
-#
-#include(CTest)
-#add_test(NAME javaTests COMMAND ${Java_JAVA_EXECUTABLE} -cp "${jniclass}:${classpath}" org.rocksdb.test.RocksJunitRunner ${testclass})
+set(ROCKSDBJNI_LIB_DIR $<TARGET_FILE_DIR:${ROCKSDBJNI_SHARED_LIB}>)
+get_target_property(ROCKSDBJNI_JAR rocksdbjni_classes JAR_FILE)
+get_target_property(ROCKSDBJNI_TEST_JAR rocksdbjni_test_classes JAR_FILE)
+include(CTest)
+add_test(
+  NAME javaTests
+  COMMAND
+  "${Java_JAVA_EXECUTABLE}"
+  "-Djava.library.path=${ROCKSDBJNI_LIB_DIR}"
+  -cp
+  "${ROCKSDBJNI_TEST_JAR}:${ROCKSDBJNI_JAR}:${JAVA_TEST_LIBDIR}/*"
+  org.junit.platform.console.ConsoleLauncher
+  --fail-if-no-tests
+  --disable-ansi-colors
+  "--scan-classpath=${ROCKSDBJNI_TEST_JAR}"
+)

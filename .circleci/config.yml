@@ -158,8 +158,6 @@ jobs:
             mkdir test-jars/
             cp java/test-libs/*.jar test-jars/
             cp build/java/rocksdbjni_test_classes.jar test-jars/
-            rm test-jars/*junit-4*
-            curl --fail --silent --show-error --output test-jars/junit-platform-console-standalone-1.9.1.jar --location https://repo1.maven.org/maven2/org/junit/platform/junit-platform-console-standalone/1.9.1/junit-platform-console-standalone-1.9.1.jar
       - run:
           name: Prepare version information.
           command: |
