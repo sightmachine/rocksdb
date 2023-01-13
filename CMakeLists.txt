@@ -141,6 +141,7 @@ else()
       find_package(Snappy REQUIRED)
     endif()
     add_definitions(-DSNAPPY)
+    include_directories(${Snappy_INCLUDE_DIRS})
     list(APPEND THIRDPARTY_LIBS Snappy::snappy)
   endif()
 

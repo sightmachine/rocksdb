@@ -6,7 +6,7 @@ orbs:
 executors:
   linux-build:
       docker:
-        - image: zjay437/rocksdb:0.6
+        - image: cimg/base:2022.08-20.04 # Ubuntu 20.04
   linux-test:
       docker:
         - image: cimg/openjdk:18.0.2
@@ -36,7 +36,7 @@ jobs:
           command: |
             set -xe
             PATH=$(cd ../deps/cmake/bin;pwd):$PATH
-            ./build_tools/install_dependencies.sh ../deps jni lz4
+            ./build_tools/install_dependencies.sh ../deps jni lz4 snappy
             export --  $(cat ../deps/cmake-flags | sed 's/-D//g')
             TOOLS="-DWITH_TOOLS=OFF -DWITH_TRACE_TOOLS=OFF -WITH_CORE_TOOLS=OFF -DWITH_BENCHMARK_TOOLS=OFF"
             EXTRA="-DROCKSDB_BUILD_SHARED=ON -DFAIL_ON_WARNINGS=OFF"
@@ -76,7 +76,7 @@ jobs:
           name: CMake configure and build
           command: |
             set -xe
-            env ARCH=$ARCH  ./build_tools/install_dependencies.sh ../deps jni lz4
+            env ARCH=$ARCH  ./build_tools/install_dependencies.sh ../deps jni lz4 snappy
             TOOLS="-DWITH_TOOLS=OFF -DWITH_TRACE_TOOLS=OFF -WITH_CORE_TOOLS=OFF -DWITH_BENCHMARK_TOOLS=OFF"
             EXTRA="-DROCKSDB_BUILD_SHARED=ON -DFAIL_ON_WARNINGS=OFF"
             ${CMAKE_BIN-cmake}  -B build $TOOLS -DCMAKE_BUILD_TYPE=Release  $(cat ../deps/cmake-flags) -DCMAKE_OSX_ARCHITECTURES=$ARCH -DPORTABLE=1
@@ -116,7 +116,7 @@ jobs:
           name: CMake configure and build
           command: |
             set -xe
-            env ARCH=$ARCH  ./build_tools/install_dependencies.sh ../deps jni lz4
+            env ARCH=$ARCH  ./build_tools/install_dependencies.sh ../deps jni lz4 snappy
             TOOLS="-DWITH_TOOLS=OFF -DWITH_TRACE_TOOLS=OFF -WITH_CORE_TOOLS=OFF -DWITH_BENCHMARK_TOOLS=OFF"
             EXTRA="-DROCKSDB_BUILD_SHARED=ON -DFAIL_ON_WARNINGS=OFF"
             ${CMAKE_BIN-cmake}  -B build $TOOLS -DCMAKE_BUILD_TYPE=Release  $(cat ../deps/cmake-flags) -DCMAKE_OSX_ARCHITECTURES=$ARCH -DPORTABLE=1 -DHAS_ARMV8_CRC=1
@@ -137,12 +137,19 @@ jobs:
   build-linux-cmake:
     executor: linux-build
     steps:
+      - run:
+          name: Install build tools
+          command: |
+            set -e
+            sudo apt-get update
+            sudo apt-get install -y g++ clang openjdk-8-jdk cmake make git
       - checkout
       - run:
           name: CMake configure and build
           command: |
             set -xe
-            ./build_tools/install_dependencies.sh ../deps jni uring lz4
+            export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/
+            ./build_tools/install_dependencies.sh ../deps jni uring lz4 snappy
             TOOLS="-DWITH_TOOLS=OFF -DWITH_TRACE_TOOLS=OFF -WITH_CORE_TOOLS=OFF -DWITH_BENCHMARK_TOOLS=OFF"
             EXTRA="-DROCKSDB_BUILD_SHARED=ON -DFAIL_ON_WARNINGS=OFF"
             ${CMAKE_BIN-cmake}  -B build $TOOLS -DCMAKE_BUILD_TYPE=Release  $(cat ../deps/cmake-flags) -DPORTABLE=1
