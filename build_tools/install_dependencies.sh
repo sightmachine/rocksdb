@@ -3,6 +3,9 @@
 
 set -e
 
+
+SCRIPT_DIR=$( cd $(dirname $0) && pwd)
+
 J=-j8
 
 ## Install static dependencies for compiling static rocksdbjava with cmake.
@@ -12,6 +15,7 @@ J=-j8
 
 CMAKEFLAGS="-DWITH_JNI=OFF -DWITH_LIBURING=OFF -DWITH_LZ4=OFF -DWITH_SNAPPY=OFF -DWITH_ZLIB=OFF -DWITH_ZSTD=OFF -DWITH_BZ2=OFF -DWITH_GFLAGS=OFF -DWITH_JEMALLOC=OFF"
 
+ARCH_CFLAGS=""
 ## For mac
 case "$ARCH" in
     x86_64 ) ARCH_CFLAGS="-arch x86_64";;
@@ -119,6 +123,38 @@ with_jemalloc()  # makes libjemalloc_pic.a
     cmakeflags JEMALLOC -DJeMalloc_INCLUDE_DIRS=$DIR/$DEST/include -DJeMalloc_LIBRARIES=$DIR/$DEST/lib/libjemalloc_pic.a
 }
 
+with_snappy()
+{
+    ORG=google
+    REPO=snappy
+    TAG=1.1.9
+    DEST=snappy
+    ROOT=$REPO-$TAG
+
+    echo Compiling $ORG/$REPO[$TAG] to $DIR/$DEST/ >&2
+    cd $DIR/
+    download $REPO-$TAG.tar.gz https://github.com/$ORG/$REPO/archive/refs/tags/$TAG.tar.gz
+    rm -fr $REPO-$TAG $DIR/$DEST/
+    tar xf $REPO-$TAG.tar.gz
+    cd $ROOT
+
+    patch -p0 < $SCRIPT_DIR/snappy.patch
+
+    case $OS in
+        *Win* )
+            cmake -B build -DSNAPPY_BUILD_TESTS=OFF -DSNAPPY_BUILD_BENCHMARKS=OFF -DBUILD_SHARED_LIBS=OFF -DCMAKE_INSTALL_PREFIX=$DIR/$DEST/  -DCMAKE_BUILD_TYPE=Release -DCMAKE_POSITION_INDEPENDENT_CODE=ON
+            cmake --build build/ -t install -v --config Release
+
+            cmakeflags SNAPPY -DSNAPPY_INCLUDE=$DIR/$DEST/include -DSNAPPY_LIB_RELEASE=$DIR/$DEST/lib/snappy.lib ;;
+
+        * )
+            cmake -B build -DSNAPPY_BUILD_TESTS=OFF -DSNAPPY_BUILD_BENCHMARKS=OFF -DBUILD_SHARED_LIBS=OFF -DCMAKE_INSTALL_PREFIX=$DIR/$DEST/ -DCMAKE_BUILD_TYPE=Release -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_CXX_COMPILER_ID=Clang -DARCH_CFLAGS="$ARCH_CFLAGS"
+            cmake --build build/ -t install -v --config Release
+
+            cmakeflags SNAPPY -DSnappy_INCLUDE_DIRS=$DIR/$DEST/include -DSnappy_LIBRARIES=$DIR/$DEST/lib/libsnappy.a ;;
+    esac
+}
+
 with_jni() # ensure JAVA_HOME is set.
 {
     if [ -z "$JAVA_HOME" ]
@@ -148,6 +184,7 @@ do
         uring|iouring)  with_iouring   > $DIR/iouring.log;;
         lz4)            with_lz4       > $DIR/lz4.log;;
         jemalloc)       with_jemalloc  > $DIR/jemalloc.log;;
+        snappy)         with_snappy    > $DIR/snappy.log;;
         *) usage;;
     esac
 done
