@@ -6,7 +6,7 @@ orbs:
 executors:
   linux-build:
       docker:
-        - image: cimg/base:2022.09
+        - image: cimg/base:2022.08
   linux-test:
       docker:
         - image: cimg/openjdk:18.0.2
