@@ -170,16 +170,8 @@ jobs:
           command: |
             set -xe
             ## We do it here, so that we don't need to checkout the whole repository in make-jar step.
-            tag=$(git tag --points-at HEAD | sed -rne 's/^sm-v([0-9\.]+)$/\1/p' | tail -1)
-            if [ -z "$tag" ] ;
-            then
-              v1=$(cat include/rocksdb/version.h  | sed -rne 's/#define\s+ROCKSDB_MAJOR\s+([0-9]+).*/\1/p')
-              v2=$(cat include/rocksdb/version.h  | sed -rne 's/#define\s+ROCKSDB_MINOR\s+([0-9]+).*/\1/p')
-              v3=$(cat include/rocksdb/version.h  | sed -rne 's/#define\s+ROCKSDB_PATCH\s+([0-9]+).*/\1/p')
-              VERSION=$v1.$v2.$v3-SNAPSHOT
-            else
-              VERSION=$tag
-            fi
+            ## Merging may still make build another version with exact same name!
+            VERSION=$(git describe --match='sm-v*' | sed -e 's/^sm-v//' )
             mkdir properties
             echo "sm-rocksdb" > properties/GROUPID
             echo "sm-rocksdbjni" > properties/ARTIFACTID
