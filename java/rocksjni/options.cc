@@ -3905,6 +3905,28 @@ jbyte Java_org_rocksdb_Options_prepopulateBlobCache(JNIEnv*, jobject,
       opts->prepopulate_blob_cache);
 }
 
+/*
+ * Class:     org_rocksdb_Options
+ * Method:    setMaxTombstonesCount
+ * Signature: (JI)V
+ */
+void Java_org_rocksdb_Options_setMaxTombstonesCount(
+    JNIEnv*, jobject, jlong jhandle, jint jmax_tombstones_count) {
+  auto* opts = reinterpret_cast<ROCKSDB_NAMESPACE::Options*>(jhandle);
+  opts->max_tombstones_count = jmax_tombstones_count;
+}
+
+/*
+ * Class:     org_rocksdb_Options
+ * Method:    maxTombstonesCount
+ * Signature: (J)I
+ */
+jint Java_org_rocksdb_Options_maxTombstonesCount(JNIEnv*, jobject,
+                                                 jlong jhandle) {
+  auto* opts = reinterpret_cast<ROCKSDB_NAMESPACE::Options*>(jhandle);
+  return static_cast<jint>(opts->max_tombstones_count);
+}
+
 //////////////////////////////////////////////////////////////////////////////
 // ROCKSDB_NAMESPACE::ColumnFamilyOptions
 
@@ -5765,6 +5787,30 @@ jbyte Java_org_rocksdb_ColumnFamilyOptions_prepopulateBlobCache(JNIEnv*,
       reinterpret_cast<ROCKSDB_NAMESPACE::ColumnFamilyOptions*>(jhandle);
   return ROCKSDB_NAMESPACE::PrepopulateBlobCacheJni::toJavaPrepopulateBlobCache(
       opts->prepopulate_blob_cache);
+}
+
+/*
+ * Class:     org_rocksdb_ColumnFamilyOptions
+ * Method:    setMaxTombstonesCount
+ * Signature: (JI)V
+ */
+void Java_org_rocksdb_ColumnFamilyOptions_setMaxTombstonesCount(
+    JNIEnv*, jobject, jlong jhandle, jint jmax_tombstones_count) {
+  auto* opts =
+      reinterpret_cast<ROCKSDB_NAMESPACE::ColumnFamilyOptions*>(jhandle);
+  opts->max_tombstones_count = jmax_tombstones_count;
+}
+
+/*
+ * Class:     org_rocksdb_ColumnFamilyOptions
+ * Method:    maxTombstonesCount
+ * Signature: (J)I
+ */
+jint Java_org_rocksdb_ColumnFamilyOptions_maxTombstonesCount(JNIEnv*, jobject,
+                                                             jlong jhandle) {
+  auto* opts =
+      reinterpret_cast<ROCKSDB_NAMESPACE::ColumnFamilyOptions*>(jhandle);
+  return static_cast<jint>(opts->max_tombstones_count);
 }
 
 /////////////////////////////////////////////////////////////////////

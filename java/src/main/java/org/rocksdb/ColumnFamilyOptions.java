@@ -956,6 +956,17 @@ public class ColumnFamilyOptions extends RocksObject
     return sstPartitionerFactory_;
   }
 
+  @Override
+  public ColumnFamilyOptions setMaxTombstonesCount(final int count) {
+    setMaxTombstonesCount(nativeHandle_, count);
+    return this;
+  }
+
+  @Override
+  public int maxTombstonesCount() {
+    return maxTombstonesCount(nativeHandle_);
+  }
+
   //
   // BEGIN options for blobs (integrated BlobDB)
   //
@@ -1495,6 +1506,8 @@ public class ColumnFamilyOptions extends RocksObject
   private native void setSstPartitionerFactory(long nativeHandle_, long newFactoryHandle);
   private static native void setCompactionThreadLimiter(
       final long nativeHandle_, final long compactionThreadLimiterHandle);
+  private native void setMaxTombstonesCount(final long handle, final int count);
+  private native int maxTombstonesCount(final long handle);
 
   private native void setEnableBlobFiles(final long nativeHandle_, final boolean enableBlobFiles);
   private native boolean enableBlobFiles(final long nativeHandle_);

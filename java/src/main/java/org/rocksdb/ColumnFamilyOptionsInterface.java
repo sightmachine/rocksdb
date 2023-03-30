@@ -507,6 +507,26 @@ public interface ColumnFamilyOptionsInterface<T extends ColumnFamilyOptionsInter
   SstPartitionerFactory sstPartitionerFactory();
 
   /**
+   * Sets the maximum tombstones ( range delete calls ) allowed
+   * in a delete-range + read work load.
+   * The value is only checked when a Get is called.
+   * This applies to the mutable memtable.
+   *
+   * @param a positive integer, 0 (default) to disable the feature.
+   * @return the reference of the current options.
+   */
+  T setMaxTombstonesCount(final int count);
+
+  /**
+   * Gets the current setting of max tombstones allowed in a
+   * delete-range + read work load.
+   * 0(default) indicates that feature is disabled.
+   *
+   * @return current value of max_tombstones_count
+   */
+  int maxTombstonesCount();
+
+  /**
    * Compaction concurrent thread limiter for the column family.
    * If non-nullptr, use given concurrent thread limiter to control
    * the max outstanding compaction tasks. Limiter can be shared with

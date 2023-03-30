@@ -334,6 +334,11 @@ struct ColumnFamilyOptions : public AdvancedColumnFamilyOptions {
   // Default: nullptr
   std::shared_ptr<SstPartitionerFactory> sst_partitioner_factory = nullptr;
 
+  // Automatic flush after tombstone count in memtable hits this limit.
+  // helps with delete-range + read workloads
+  //  0 to disable it completely
+  uint32_t max_tombstones_count = 0;
+
   // Create ColumnFamilyOptions with default values for all fields
   ColumnFamilyOptions();
   // Create ColumnFamilyOptions from Options

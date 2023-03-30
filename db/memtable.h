@@ -555,6 +555,7 @@ class MemTable {
   std::atomic<uint64_t> data_size_;
   std::atomic<uint64_t> num_entries_;
   std::atomic<uint64_t> num_deletes_;
+  std::atomic<uint64_t> num_range_deletes_;
 
   // Dynamically changeable memtable option
   std::atomic<size_t> write_buffer_size_;
@@ -616,6 +617,11 @@ class MemTable {
   // Gets refreshed inside `ApproximateMemoryUsage()` or `ShouldFlushNow`
   std::atomic<uint64_t> approximate_memory_usage_;
 
+  // max tombstones before flushing, 0 for unlimited.
+  uint32_t max_tombstones_count_ = 0;
+  // Read will turn this flag on, if max_tombstones_count_ is reached.
+  // ShouldFlushNow() will check this.
+  bool max_tombstones_reached_ = false;
 #ifndef ROCKSDB_LITE
   // Flush job info of the current memtable.
   std::unique_ptr<FlushJobInfo> flush_job_info_;

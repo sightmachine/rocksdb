@@ -1988,6 +1988,17 @@ public class Options extends RocksObject
   }
 
   @Override
+  public Options setMaxTombstonesCount(final int count) {
+    setMaxTombstonesCount(nativeHandle_, count);
+    return this;
+  }
+
+  @Override
+  public int maxTombstonesCount() {
+    return maxTombstonesCount(nativeHandle_);
+  }
+
+  @Override
   public Options setCompactionThreadLimiter(final ConcurrentTaskLimiter compactionThreadLimiter) {
     setCompactionThreadLimiter(nativeHandle_, compactionThreadLimiter.nativeHandle_);
     this.compactionThreadLimiter_ = compactionThreadLimiter;
@@ -2506,6 +2517,8 @@ public class Options extends RocksObject
       final boolean atomicFlush);
   private native boolean atomicFlush(final long handle);
   private native void setSstPartitionerFactory(long nativeHandle_, long newFactoryHandle);
+  private native void setMaxTombstonesCount(final long handle, final int count);
+  private native int maxTombstonesCount(final long handle);
   private static native void setCompactionThreadLimiter(
       final long nativeHandle_, final long newLimiterHandle);
   private static native void setAvoidUnnecessaryBlockingIO(

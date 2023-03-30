@@ -95,6 +95,7 @@ MemTable::MemTable(const InternalKeyComparator& cmp,
       data_size_(0),
       num_entries_(0),
       num_deletes_(0),
+      num_range_deletes_(0),
       write_buffer_size_(mutable_cf_options.write_buffer_size),
       flush_in_progress_(false),
       flush_completed_(false),
@@ -114,7 +115,8 @@ MemTable::MemTable(const InternalKeyComparator& cmp,
           ioptions.memtable_insert_with_hint_prefix_extractor.get()),
       oldest_key_time_(std::numeric_limits<uint64_t>::max()),
       atomic_flush_seqno_(kMaxSequenceNumber),
-      approximate_memory_usage_(0) {
+      approximate_memory_usage_(0),
+      max_tombstones_count_(mutable_cf_options.max_tombstones_count_) {
   UpdateFlushState();
   // something went wrong if we need to flush before inserting anything
   assert(!ShouldScheduleFlush());
@@ -170,6 +172,11 @@ size_t MemTable::ApproximateMemoryUsage() {
 }
 
 bool MemTable::ShouldFlushNow() {
+  // Read path will set this if too many tombstones have been generated.
+  if (max_tombstones_reached_) {
+    return true;
+  }
+
   size_t write_buffer_size = write_buffer_size_.load(std::memory_order_relaxed);
   // In a lot of times, we cannot allocate arena blocks that exactly matches the
   // buffer size. Thus we have to decide if we should over-allocate or
@@ -787,6 +794,10 @@ Status MemTable::Add(SequenceNumber s, ValueType type,
         type == kTypeDeletionWithTimestamp) {
       num_deletes_.store(num_deletes_.load(std::memory_order_relaxed) + 1,
                          std::memory_order_relaxed);
+    } else if (type == kTypeRangeDeletion) {
+      num_range_deletes_.store(
+          num_range_deletes_.load(std::memory_order_relaxed) + 1,
+          std::memory_order_relaxed);
     }
 
     if (bloom_filter_ && prefix_extractor_ &&
@@ -1294,6 +1305,14 @@ bool MemTable::Get(const LookupKey& key, std::string* value,
     // Avoiding recording stats for speed.
     return false;
   }
+
+  // Arrange for a flush if too many tombstones have been created.
+  if (max_tombstones_count_ > 0 && max_tombstones_reached_ == false &&
+      num_range_deletes_.load(std::memory_order_relaxed) >
+          max_tombstones_count_) {
+    max_tombstones_reached_ = true;
+  }
+
   PERF_TIMER_GUARD(get_from_memtable_time);
 
   std::unique_ptr<FragmentedRangeTombstoneIterator> range_del_iter(

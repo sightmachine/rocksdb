@@ -711,4 +711,14 @@ public class ColumnFamilyOptionsTest {
       assertThat(options.cfPaths()).isEqualTo(paths);
     }
   }
+
+  @Test
+  public void maxTombstonesCount() {
+    try (final ColumnFamilyOptions options = new ColumnFamilyOptions()) {
+      assertThat(options.maxTombstonesCount()).isEqualTo(0);
+      final int val = 32;
+      assertThat(options.setMaxTombstonesCount(val)).isEqualTo(options);
+      assertThat(options.maxTombstonesCount()).isEqualTo(val);
+    }
+  }
 }

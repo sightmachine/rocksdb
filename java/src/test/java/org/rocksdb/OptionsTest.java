@@ -1457,6 +1457,16 @@ public class OptionsTest {
   }
 
   @Test
+  public void maxTombstonesCount() {
+    try (final Options options = new Options()) {
+      assertThat(options.maxTombstonesCount()).isEqualTo(0);
+      final int val = 32;
+      assertThat(options.setMaxTombstonesCount(val)).isEqualTo(options);
+      assertThat(options.maxTombstonesCount()).isEqualTo(val);
+    }
+  }
+
+  @Test
   public void eventListeners() {
     final AtomicBoolean wasCalled1 = new AtomicBoolean();
     final AtomicBoolean wasCalled2 = new AtomicBoolean();
